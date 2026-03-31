@@ -1,0 +1,92 @@
+<div class="membership-registration-wrapper" id="membership-registration-wrapper">
+  <!-- Global message box for overall Success or Errors -->
+  <div id="global-message" class="message-container hidden"></div>
+  <form id="membership-form" class="membership-form" data-shop="{{ shop.domain }}" onsubmit="handleRegistrationSubmit(event)">
+    <h2>Membership Application</h2>
+
+    <div class="oauth-wrapper">
+      <button type="button" class="btn-google-auth" id="btn-google-auth">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <button type="button" class="btn-facebook-auth" id="btn-facebook-auth">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20px" height="20px" fill="#FFFFFF"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        <span>Continue with Facebook</span>
+      </button>
+    </div>
+
+
+    
+    <div class="oauth-divider">
+      <span>OR CONTINUE WITH FORM</span>
+    </div>
+
+
+    <div class="form-group">
+      <input type="text" id="firstName" name="firstName" placeholder="First Name *" required>
+      <span class="error-message" id="error-firstName"></span>
+    </div>
+
+    <div class="form-group">
+      <input type="text" id="lastName" name="lastName" placeholder="Last Name *" required>
+      <span class="error-message" id="error-lastName"></span>
+    </div>
+    <div class="form-group">
+      <input type="email" id="email" name="email" placeholder="Email Address *" required>
+      <span class="error-message" id="error-email"></span>
+    </div>
+
+    <div class="form-group">
+      <label class="signature-label">Draw your Signature *</label>
+      <div class="signature-box-container">
+        <canvas id="signature-pad" class="signature-pad" width="500" height="200"></canvas>
+        <!-- Error explicitly placed under the signature box -->
+        <span class="error-message" id="error-signature"></span>
+        <button type="button" id="clear-signature" class="btn-clear-signature">Clear Signature</button>
+      </div>
+
+      <input type="hidden" id="signature-data" name="signature" value="data:image/png;base64,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">
+    </div>
+    <div class="form-group checkbox-group">
+      <input type="checkbox" id="agreement-confirm">
+      <div class="checkbox-text-wrapper">
+        <label for="agreement-confirm">I have read and agree to the membership terms.</label>
+        <span class="error-message" id="error-agreement"></span>
+      </div>
+    </div>
+    <button type="submit" class="btn-submit" id="submit-registration">Submit</button>
+  </form>
+  <div id="otp-verification-container" class="otp-container hidden">
+    <h2>Verify Your Email</h2>
+    <p>We've sent a 6-digit code to your email. It expires in 1 minute.</p>
+
+    <p id="timer-display" class="timer-display">Resend available in: <span id="countdown">60</span>s</p>
+
+    <form id="otp-form" onsubmit="handleOtpSubmit(event)">
+      <div class="form-group">
+        <label for="otp-code">Enter 6-Digit OTP</label>
+        <input type="text" id="otp-code" name="otp-code" maxlength="6" pattern="\d{6}" placeholder="000000">
+        <span class="error-message" id="error-otp"></span>
+      </div>
+      <button type="submit" class="btn-submit" id="verify-otp-btn">Verify OTP</button>
+    </form>
+
+    <div class="resend-container">
+      <button type="button" id="resend-otp-btn" class="btn-secondary hidden" onclick="handleResendOtp()">
+        Resend OTP
+      </button>
+    </div>
+  </div>
+</div>
+
+
+{% schema %}
+{
+  "name": "Membership Form",
+  "target": "section",
+  "stylesheet": "membership-form.css",
+  "javascript": "membership-form.js",
+  "settings": []
+}
+{% endschema %}
