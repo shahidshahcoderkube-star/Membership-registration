@@ -1,9 +1,8 @@
-import { authenticate } from "../shopify.server";
-import prisma from "../db.server";
 
 export const loader = async ({ request }) => {
   try {
     // 1. Authenticate the App Proxy request from Shopify
+    const { authenticate } = await import("../shopify.server");
     const { admin } = await authenticate.public.appProxy(request);
     if (!admin) {
       return Response.json({ success: false, message: "Unauthorized proxy request" }, { status: 401 });
@@ -17,6 +16,7 @@ export const loader = async ({ request }) => {
     }
 
     // 2. Find the OAuth record
+    const prisma = (await import("../db.server")).default;
     const oauthRecord = await prisma.oAuthVerification.findUnique({
       where: { id: token }
     });

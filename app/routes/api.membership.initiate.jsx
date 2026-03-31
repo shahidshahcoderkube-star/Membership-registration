@@ -1,7 +1,5 @@
-import { authenticate } from "../shopify.server";
-import prisma from "../db.server";
+import { redirect } from "react-router";
 import nodemailer from "nodemailer";
-import { finalizeRegistration } from "../services/registration.server";
 
 // Simple helper to generate a random 6-digit number
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -13,6 +11,7 @@ export const action = async ({ request }) => {
 
   try {
     // 1. Authenticate the App Proxy request from Shopify
+    const { authenticate } = await import("../shopify.server");
     const { admin } = await authenticate.public.appProxy(request);
 
     if (!admin) {
@@ -30,12 +29,14 @@ export const action = async ({ request }) => {
     // --- CHECK FOR OAUTH REGISTRATION ---
     if (oauthToken) {
       // 1. Verify the OAuth Token
+      const prisma = (await import("../db.server")).default;
       const oauthRecord = await prisma.oAuthVerification.findUnique({ where: { id: oauthToken } });
       if (!oauthRecord || oauthRecord.email !== email || new Date() > oauthRecord.expiresAt) {
         return Response.json({ success: false, message: "Invalid or expired Google session. Please login with Google again." }, { status: 400 });
       }
 
       // 2. Finalize Registration IMMEDIATELY (Skip OTP)
+      const { finalizeRegistration } = await import("../services/registration.server");
       try {
         await finalizeRegistration({
             admin,
@@ -83,6 +84,7 @@ export const action = async ({ request }) => {
     const expiresAt = new Date(Date.now() + 60 * 1000);
 
     // 4. Upsert data to Prisma
+    const prisma = (await import("../db.server")).default;
     await prisma.otpVerification.upsert({
       where: { email },
       update: {

@@ -1,5 +1,3 @@
-import { authenticate } from "../shopify.server";
-import prisma from "../db.server";
 import nodemailer from "nodemailer";
 
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -10,6 +8,7 @@ export const action = async ({ request }) => {
   }
 
   try {
+    const { authenticate } = await import("../shopify.server");
     const { admin } = await authenticate.public.appProxy(request);
     if (!admin) {
       return Response.json({ success: false, message: "Unauthorized proxy request" }, { status: 401 });
@@ -22,6 +21,7 @@ export const action = async ({ request }) => {
     }
 
     // 1. Verify they have a pending registration
+    const prisma = (await import("../db.server")).default;
     const pendingRegistration = await prisma.otpVerification.findUnique({
       where: { email }
     });

@@ -1,12 +1,12 @@
-import { authenticate } from "../shopify.server";
-import db from "../db.server";
 
 export const action = async ({ request }) => {
   try {
+    const { authenticate } = await import("../shopify.server");
     const { shop, topic } = await authenticate.webhook(request);
     console.log(`✅ Webhook received: ${topic} for ${shop}`);
 
     if (shop) {
+      const db = (await import("../db.server")).default;
       await db.session.deleteMany({ where: { shop } });
       console.log(`✅ Sessions successfully deleted for ${shop}`);
     }

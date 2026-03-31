@@ -1,5 +1,4 @@
 import { redirect } from "react-router";
-import { unauthenticated } from "../shopify.server";
 
 export const loader = async ({ request }) => {
   const url = new URL(request.url);

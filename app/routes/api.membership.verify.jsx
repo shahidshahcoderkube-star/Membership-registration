@@ -1,6 +1,4 @@
-import { authenticate } from "../shopify.server";
-import prisma from "../db.server";
-import { finalizeRegistration } from "../services/registration.server";
+import { redirect } from "react-router";
 
 export const action = async ({ request }) => {
   if (request.method !== "POST") {
@@ -8,6 +6,7 @@ export const action = async ({ request }) => {
   }
 
   try {
+    const { authenticate } = await import("../shopify.server");
     const { admin } = await authenticate.public.appProxy(request);
     if (!admin) {
       return Response.json({ success: false, message: "Unauthorized proxy request" }, { status: 401 });
@@ -19,6 +18,7 @@ export const action = async ({ request }) => {
     }
 
     // 1. Verify OTP
+    const prisma = (await import("../db.server")).default;
     const verification = await prisma.otpVerification.findUnique({ where: { email } });
     if (!verification) {
       return Response.json({ success: false, message: "Registration not initiated or expired." }, { status: 400 });
@@ -31,6 +31,7 @@ export const action = async ({ request }) => {
     }
 
     // 2. Finalize Registration using shared service
+    const { finalizeRegistration } = await import("../services/registration.server");
     try {
       await finalizeRegistration({
         admin,
