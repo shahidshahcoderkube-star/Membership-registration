@@ -60,7 +60,39 @@ document.addEventListener("DOMContentLoaded", function() {
         window.history.replaceState({ path: newUrl }, '', newUrl);
     }
 
+    // --- AGGRESSIVE BACK-NAVIGATION CLEARING ---
+    window.addEventListener('pageshow', function(event) {
+        // If the page is loaded from the cache (e.g. Back button)
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            resetRegistrationForm();
+        }
+    });
+
 });
+
+function resetRegistrationForm() {
+    const form = document.getElementById("membership-form");
+    const canvasEl = document.getElementById("signature-pad");
+    
+    if (form) form.reset();
+    if (ctx && canvasEl) {
+        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    }
+    signaturePadActive = !1;
+    const sigData = document.getElementById("signature-data");
+    if (sigData) sigData.value = "";
+    document.body.removeAttribute('data-oauth-token');
+    
+    // Remove readOnly if it was set by OAuth
+    const fields = ["firstName", "lastName", "email"];
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.readOnly = false;
+            el.value = ""; // Force clear even if reset() misses it
+        }
+    });
+}
 
 async function handleOAuthReturn(token) {
     showGlobalSuccess("Google account linked. Please complete the signature below.");
@@ -187,6 +219,7 @@ async function handleRegistrationSubmit(event) {
             // Check if backend wants an immediate redirect (e.g. Google registration finished)
             if (result.redirect) {
                 showGlobalSuccess(result.message || "Registration complete! Redirecting...");
+                resetRegistrationForm(); // Clear data before redirecting
                 setTimeout(() => {
                     window.location.href = result.redirect;
                 }, 1500);
@@ -194,7 +227,12 @@ async function handleRegistrationSubmit(event) {
             }
 
             // Normal OTP Flow
-            currentEmail = email, document.getElementById("membership-form").classList.add("hidden"), document.getElementById("otp-verification-container").classList.remove("hidden"), showGlobalSuccess(result.message || "Verification code sent successfully!"), startOtpTimer()
+            currentEmail = email;
+            document.getElementById("membership-form").classList.add("hidden");
+            document.getElementById("otp-verification-container").classList.remove("hidden");
+            showGlobalSuccess(result.message || "Verification code sent successfully!");
+            startOtpTimer();
+            resetRegistrationForm(); // Clear data so it's empty if they go back
         } else {
             showGlobalError(result.message || "Failed to initiate registration.")
         }
