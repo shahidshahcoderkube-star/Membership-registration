@@ -74,6 +74,16 @@ export const action = async ({ request }) => {
 
       } catch (finalizeError) {
         console.error("OAuth Registration finalization error:", finalizeError);
+        
+        // If Shopify says the email is taken, it's a "connected" account error
+        if (finalizeError.message.toLowerCase().includes("taken") || finalizeError.message.toLowerCase().includes("exists")) {
+          const providerName = oauthRecord.provider.charAt(0).toUpperCase() + oauthRecord.provider.slice(1);
+          return Response.json({ 
+            success: false, 
+            message: `This ${providerName} account is already connected.` 
+          }, { status: 400 });
+        }
+
         return Response.json({ success: false, message: finalizeError.message }, { status: 500 });
       }
     }
