@@ -252,7 +252,7 @@ async function handleRegistrationSubmit(event) {
 
 function startOtpTimer() {
     clearInterval(countdownInterval);
-    let timeLeft = 300;
+    let timeLeft = 60;
     const resendBtn = document.getElementById("membership-resend-otp-btn");
     resendBtn.classList.add("hidden");
     
