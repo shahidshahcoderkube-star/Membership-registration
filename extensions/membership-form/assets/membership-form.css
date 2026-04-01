@@ -1,8 +1,22 @@
+:root {
+	--membership-error-red: #df2020;
+	--membership-success-green: #0b7a35;
+	--membership-border-color: var(--color-base-accent-1, #ddd);
+}
+
 .membership-registration-wrapper {
 	max-width: 650px;
-	margin: 0 auto;
-	font-family: inherit;
-	padding: 20px
+	margin: 20px auto;
+	font-family: var(--font-body-family, inherit);
+	color: var(--color-base-text, #000);
+	padding: 20px;
+	line-height: var(--font-body-line-height, 1.6);
+}
+
+.membership-registration-wrapper h2 {
+	color: var(--color-base-text, #000);
+	font-family: var(--font-heading-family, inherit);
+	margin-bottom: 20px;
 }
 
 .form-group {
@@ -12,20 +26,29 @@
 .form-group label {
 	display: block;
 	margin-bottom: 8px;
-	font-weight: 600
+	font-weight: 600;
+	color: var(--color-base-text, #000);
 }
 
 .form-group input[type=text],
 .form-group input[type=email] {
 	width: 100%;
 	padding: 12px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	box-sizing: border-box
+	border: 1px solid var(--membership-border-color);
+	border-radius: var(--inputs-radius, 4px);
+	background-color: var(--color-base-background-1, #fff);
+	color: var(--color-base-text, #000);
+	box-sizing: border-box;
+	font-size: 16px;
+}
+
+.form-group input:focus {
+	outline: 2px solid var(--color-base-accent-1, #333);
+	outline-offset: -2px;
 }
 
 .error-message {
-	color: #df2020;
+	color: var(--membership-error-red);
 	font-size: 13px;
 	display: block;
 	margin-top: 5px;
@@ -35,7 +58,7 @@
 .message-container {
 	padding: 12px;
 	border-radius: 4px;
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 	text-align: center;
 	font-weight: 700;
 	font-size: 15px
@@ -55,7 +78,7 @@
 
 .agreement-box {
 	margin-bottom: 20px;
-	border: 1px solid #ddd;
+	border: 1px solid var(--membership-border-color);
 	padding: 15px;
 	border-radius: 4px
 }
@@ -67,25 +90,28 @@
 .agreement-text {
 	height: 200px;
 	overflow-y: auto;
-	background-color: #f9f9f9;
+	background-color: var(--color-base-background-2, #f9f9f9);
 	padding: 15px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--membership-border-color);
 	font-size: 14px;
-	line-height: 1.6
+	line-height: 1.6;
+	color: var(--color-base-text, #000);
 }
 
 .signature-label {
 	font-size: 16px;
-	margin-bottom: 10px
+	margin-bottom: 10px;
+	font-weight: 600;
 }
 
 .signature-box-container {
-	border: 1px solid #ddd;
+	border: 1px solid var(--membership-border-color);
 	padding: 20px;
-	background-color: #fcfcfc;
+	background-color: var(--color-base-background-1, #fff);
 	display: flex;
 	flex-direction: column;
-	align-items: center
+	align-items: center;
+	border-radius: 4px;
 }
 
 .signature-pad {
@@ -98,14 +124,19 @@
 
 .btn-clear-signature {
 	margin-top: 15px;
-	background-color: #111;
+	background-color: var(--color-base-accent-2, #333);
 	color: #fff;
 	border: none;
 	padding: 10px 24px;
 	cursor: pointer;
 	border-radius: 4px;
 	font-size: 14px;
-	font-weight: 500
+	font-weight: 500;
+	transition: opacity 0.2s;
+}
+
+.btn-clear-signature:hover {
+	opacity: 0.8;
 }
 
 .checkbox-group {
@@ -127,23 +158,28 @@
 	font-size: 16px;
 	font-weight: 700;
 	cursor: pointer;
-	border-radius: 4px
+	border-radius: var(--buttons-radius, 4px);
+	transition: transform 0.1s, filter 0.2s;
 }
 
 .btn-submit {
-	background-color: #000;
-	color: #fff
+	background-color: var(--color-button, #000);
+	color: var(--color-button-text, #fff);
 }
 
 .btn-submit:hover {
-	background-color: #333
+	filter: brightness(1.1);
+}
+
+.btn-submit:active {
+	transform: scale(0.98);
 }
 
 .btn-secondary {
-	background-color: #fff;
-	color: #000;
-	border: 1px solid #000;
-	margin-top: 10px
+	background-color: transparent;
+	color: var(--color-button, #000);
+	border: 1px solid var(--color-button, #000);
+	margin-top: 15px;
 }
 
 .hidden {
@@ -153,31 +189,43 @@
 .otp-container {
 	text-align: center;
 	padding: 40px 20px;
-	border: 1px solid #ddd;
+	border: 1px solid var(--membership-border-color);
 	border-radius: 8px;
-	background-color: #fafafa
+	background-color: var(--color-base-background-2, #fafafa)
 }
 
 .otp-container input {
 	text-align: center;
 	font-size: 24px;
-	letter-spacing: 4px
+	letter-spacing: 4px;
+	max-width: 250px;
+	margin: 0 auto;
 }
 
 .timer-display {
 	font-size: 16px;
 	font-weight: 700;
-	color: #555;
+	color: var(--color-base-text, #555);
 	margin-bottom: 20px
 }
 
 .oauth-wrapper {
-	margin-bottom: 25px;
+	margin-bottom: 15px;
 	width: 100%;
 	display: flex;
 	flex-direction: row;
 	gap: 15px;
 	align-items: center;
+}
+
+/* Mobile responsive oauth buttons */
+@media screen and (max-width: 480px) {
+	.oauth-wrapper {
+		flex-direction: column;
+	}
+	.btn-google-auth, .btn-facebook-auth {
+		width: 100%;
+	}
 }
 
 
@@ -188,11 +236,11 @@
 	align-items: center;
 	justify-content: center;
 	gap: 10px;
-	padding: 10px 15px;
+	padding: 12px 15px;
 	background-color: #ffffff;
 	border: 1px solid #dadce0;
 	border-radius: 4px;
-	font-family: "Roboto", arial, sans-serif;
+	font-family: inherit;
 	font-size: 14px;
 	font-weight: 500;
 	color: #3c4043;
@@ -211,8 +259,8 @@
 	display: flex;
 	align-items: center;
 	text-align: center;
-	margin: 20px 0;
-	color: #555;
+	margin: 25px 0;
+	color: var(--color-base-text, #555);
 	font-size: 14px;
 	font-weight: 600;
 }
@@ -221,11 +269,11 @@
 .oauth-divider::after {
 	content: '';
 	flex: 1;
-	border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid var(--membership-border-color);
 }
 
 .oauth-divider span {
-	padding: 0 10px;
+	padding: 0 15px;
 }
 
 .btn-facebook-auth {
@@ -234,11 +282,11 @@
 	align-items: center;
 	justify-content: center;
 	gap: 10px;
-	padding: 10px 15px;
+	padding: 12px 15px;
 	background-color: #1877F2;
 	border: none;
 	border-radius: 4px;
-	font-family: "Roboto", Arial, sans-serif;
+	font-family: inherit;
 	font-size: 14px;
 	font-weight: 600;
 	color: #ffffff;
@@ -257,5 +305,6 @@
 }
 
 input[type=checkbox] {
-	margin-top: 7px;
+	margin-top: 5px;
+	transform: scale(1.1);
 }
