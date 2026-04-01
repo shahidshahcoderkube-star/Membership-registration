@@ -52,11 +52,19 @@ document.addEventListener("DOMContentLoaded", function() {
     // --- CHECK FOR OAUTH RETURN ---
     const urlParams = new URLSearchParams(window.location.search);
     const oauthToken = urlParams.get('oauth_token');
+    const errorParam = urlParams.get('error');
+
     if (oauthToken) {
         handleOAuthReturn(oauthToken);
         
         // Clean the URL so the token doesn't stay in the address bar
-        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({ path: newUrl }, '', newUrl);
+    } else if (errorParam === 'account_exists') {
+        showGlobalError("This Google account is already connected.");
+        
+        // Clean the URL so the error doesn't stay on refresh
+        const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({ path: newUrl }, '', newUrl);
     }
 
