@@ -189,7 +189,7 @@ async function handleRegistrationSubmit(event) {
         agreement = document.getElementById("membership-agreement-confirm").checked;
     if (firstName || (showError("membership-error-firstName", "First name is required"), isValid = !1), lastName || (showError("membership-error-lastName", "Last name is required"), isValid = !1), email ? /^\S+@\S+\.\S+$/.test(email) || (showError("membership-error-email", "Please enter a valid email"), isValid = !1) : (showError("membership-error-email", "Email is required"), isValid = !1), signaturePadActive || (showError("membership-error-signature", "Signature is required."), isValid = !1), agreement || (showError("membership-error-agreement", "You must accept the terms"), isValid = !1), !isValid) return;
     const submitBtn = document.getElementById("membership-submit-registration");
-    submitBtn.disabled = !0, submitBtn.innerText = "Processing...";
+    submitBtn.disabled = !0, submitBtn.classList.add("btn-loading");
     try {
         const oauthToken = document.body.getAttribute('data-oauth-token');
 
@@ -246,7 +246,7 @@ async function handleRegistrationSubmit(event) {
 
         console.error("Registration error:", error), showGlobalError("Server error. Please try again or contact support.")
     } finally {
-        submitBtn.disabled = !1, submitBtn.innerText = "Submit"
+        submitBtn.disabled = !1, submitBtn.classList.remove("btn-loading")
     }
 }
 
@@ -281,7 +281,7 @@ async function handleOtpSubmit(event) {
     
     const verifyBtn = document.getElementById("membership-verify-otp-btn");
     verifyBtn.disabled = true;
-    verifyBtn.innerText = "Verifying...";
+    verifyBtn.classList.add("btn-loading");
     
     try {
         const proxyUrl = document.getElementById("membership-reg-form").getAttribute("data-proxy-url");
@@ -313,7 +313,7 @@ async function handleOtpSubmit(event) {
         showError("membership-error-otp", "Server error during verification.");
     } finally {
         verifyBtn.disabled = false;
-        verifyBtn.innerText = "Verify OTP";
+        verifyBtn.classList.remove("btn-loading");
     }
 }
 
@@ -321,7 +321,7 @@ async function handleResendOtp() {
     clearErrors();
     const resendBtn = document.getElementById("membership-resend-otp-btn");
     resendBtn.disabled = true;
-    resendBtn.innerText = "Resending...";
+    resendBtn.classList.add("btn-loading");
     
     try {
         const proxyUrl = document.getElementById("membership-reg-form").getAttribute("data-proxy-url");
@@ -345,6 +345,6 @@ async function handleResendOtp() {
         showGlobalError("Server error. Please try again or contact support.");
     } finally {
         resendBtn.disabled = false;
-        resendBtn.innerText = "Resend OTP";
+        resendBtn.classList.remove("btn-loading");
     }
 }
