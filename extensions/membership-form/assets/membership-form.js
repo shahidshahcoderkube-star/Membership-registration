@@ -2,7 +2,7 @@ let signaturePadActive = !1,
     isDrawing = !1,
     ctx, countdownInterval, currentEmail = "";
 document.addEventListener("DOMContentLoaded", function() {
-    const canvas = document.getElementById("signature-pad");
+    const canvas = document.getElementById("membership-signature-pad");
     if (canvas) {
         ctx = canvas.getContext("2d");
         canvas.addEventListener("mousedown", startDrawing);
@@ -12,17 +12,17 @@ document.addEventListener("DOMContentLoaded", function() {
         canvas.addEventListener("touchstart", e => startDrawing(e.touches[0]));
         canvas.addEventListener("touchmove", e => { e.preventDefault(); draw(e.touches[0]); });
         canvas.addEventListener("touchend", stopDrawing);
-        document.getElementById("clear-signature").addEventListener("click", () => {
+        document.getElementById("membership-clear-signature").addEventListener("click", () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             signaturePadActive = !1;
-            document.getElementById("signature-data").value = "";
+            document.getElementById("membership-signature-data").value = "";
         });
-        const googleBtn = document.getElementById("btn-google-auth");
-        const facebookBtn = document.getElementById("btn-facebook-auth");
+        const googleBtn = document.getElementById("membership-btn-google-auth");
+        const facebookBtn = document.getElementById("membership-btn-facebook-auth");
         
         if (googleBtn) {
             googleBtn.addEventListener("click", function() {
-                const shopDomain = document.getElementById("membership-form").getAttribute("data-shop");
+                const shopDomain = document.getElementById("membership-reg-form").getAttribute("data-shop");
                 if (!shopDomain) {
                     alert("Shop domain not found. Please refresh.");
                     return;
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if (facebookBtn) {
             facebookBtn.addEventListener("click", function() {
-                const shopDomain = document.getElementById("membership-form").getAttribute("data-shop");
+                const shopDomain = document.getElementById("membership-reg-form").getAttribute("data-shop");
                 if (!shopDomain) {
                     alert("Shop domain not found. Please refresh.");
                     return;
@@ -71,20 +71,20 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function resetRegistrationForm() {
-    const form = document.getElementById("membership-form");
-    const canvasEl = document.getElementById("signature-pad");
+    const form = document.getElementById("membership-reg-form");
+    const canvasEl = document.getElementById("membership-signature-pad");
     
     if (form) form.reset();
     if (ctx && canvasEl) {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
     }
     signaturePadActive = !1;
-    const sigData = document.getElementById("signature-data");
+    const sigData = document.getElementById("membership-signature-data");
     if (sigData) sigData.value = "";
     document.body.removeAttribute('data-oauth-token');
     
     // Remove readOnly if it was set by OAuth
-    const fields = ["firstName", "lastName", "email"];
+    const fields = ["membership-firstName", "membership-lastName", "membership-email"];
     fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -104,9 +104,9 @@ async function handleOAuthReturn(token) {
             const { firstName, lastName, email } = result.data;
             
             // Fill and Lock Fields
-            const fnField = document.getElementById("firstName");
-            const lnField = document.getElementById("lastName");
-            const emailField = document.getElementById("email");
+            const fnField = document.getElementById("membership-firstName");
+            const lnField = document.getElementById("membership-lastName");
+            const emailField = document.getElementById("membership-email");
             
             if (fnField) { 
                 fnField.value = firstName; 
@@ -143,7 +143,7 @@ function startDrawing(e) {
 
 function draw(e) {
     if (!isDrawing) return;
-    const rect = document.getElementById("signature-pad").getBoundingClientRect(),
+    const rect = document.getElementById("membership-signature-pad").getBoundingClientRect(),
         x = e.clientX - rect.left,
         y = e.clientY - rect.top;
     ctx.lineWidth = 2, ctx.lineCap = "round", ctx.strokeStyle = "#000", ctx.lineTo(x, y), ctx.stroke(), ctx.beginPath(), ctx.moveTo(x, y)
@@ -151,13 +151,13 @@ function draw(e) {
 
 function stopDrawing() {
     isDrawing = !1, ctx.beginPath();
-    const canvas = document.getElementById("signature-pad");
-    document.getElementById("signature-data").value = canvas.toDataURL()
+    const canvas = document.getElementById("membership-signature-pad");
+    document.getElementById("membership-signature-data").value = canvas.toDataURL()
 }
 
 function clearErrors() {
     document.querySelectorAll(".error-message").forEach(el => el.innerText = "");
-    const global = document.getElementById("global-message");
+    const global = document.getElementById("membership-global-message");
     global && (global.className = "message-container hidden", global.innerText = "")
 }
 
@@ -167,23 +167,23 @@ function showError(id, message) {
 }
 
 function showGlobalSuccess(message) {
-    const global = document.getElementById("global-message");
+    const global = document.getElementById("membership-global-message");
     global && (global.className = "message-container success-message", global.innerText = message)
 }
 
 function showGlobalError(message) {
-    const global = document.getElementById("global-message");
+    const global = document.getElementById("membership-global-message");
     global && (global.className = "message-container error-message-global", global.innerText = message)
 }
 async function handleRegistrationSubmit(event) {
     event.preventDefault(), clearErrors();
     let isValid = !0;
-    const firstName = document.getElementById("firstName").value.trim(),
-        lastName = document.getElementById("lastName").value.trim(),
-        email = document.getElementById("email").value.trim(),
-        agreement = document.getElementById("agreement-confirm").checked;
-    if (firstName || (showError("error-firstName", "First name is required"), isValid = !1), lastName || (showError("error-lastName", "Last name is required"), isValid = !1), email ? /^\S+@\S+\.\S+$/.test(email) || (showError("error-email", "Please enter a valid email"), isValid = !1) : (showError("error-email", "Email is required"), isValid = !1), signaturePadActive || (showError("error-signature", "Signature is required."), isValid = !1), agreement || (showError("error-agreement", "You must accept the terms"), isValid = !1), !isValid) return;
-    const submitBtn = document.getElementById("submit-registration");
+    const firstName = document.getElementById("membership-firstName").value.trim(),
+        lastName = document.getElementById("membership-lastName").value.trim(),
+        email = document.getElementById("membership-email").value.trim(),
+        agreement = document.getElementById("membership-agreement-confirm").checked;
+    if (firstName || (showError("membership-error-firstName", "First name is required"), isValid = !1), lastName || (showError("membership-error-lastName", "Last name is required"), isValid = !1), email ? /^\S+@\S+\.\S+$/.test(email) || (showError("membership-error-email", "Please enter a valid email"), isValid = !1) : (showError("membership-error-email", "Email is required"), isValid = !1), signaturePadActive || (showError("membership-error-signature", "Signature is required."), isValid = !1), agreement || (showError("membership-error-agreement", "You must accept the terms"), isValid = !1), !isValid) return;
+    const submitBtn = document.getElementById("membership-submit-registration");
     submitBtn.disabled = !0, submitBtn.innerText = "Processing...";
     try {
         const oauthToken = document.body.getAttribute('data-oauth-token');
@@ -228,8 +228,8 @@ async function handleRegistrationSubmit(event) {
 
             // Normal OTP Flow
             currentEmail = email;
-            document.getElementById("membership-form").classList.add("hidden");
-            document.getElementById("otp-verification-container").classList.remove("hidden");
+            document.getElementById("membership-reg-form").classList.add("hidden");
+            document.getElementById("membership-otp-verification-container").classList.remove("hidden");
             showGlobalSuccess(result.message || "Verification code sent successfully!");
             startOtpTimer();
             resetRegistrationForm(); // Clear data so it's empty if they go back
@@ -247,10 +247,10 @@ async function handleRegistrationSubmit(event) {
 function startOtpTimer() {
     clearInterval(countdownInterval);
     let timeLeft = 60;
-    const resendBtn = document.getElementById("resend-otp-btn");
+    const resendBtn = document.getElementById("membership-resend-otp-btn");
     resendBtn.classList.add("hidden");
     
-    const countdownSpan = document.getElementById("countdown");
+    const countdownSpan = document.getElementById("membership-countdown");
     if(countdownSpan) countdownSpan.innerText = timeLeft;
     
     countdownInterval = setInterval(() => {
@@ -259,7 +259,7 @@ function startOtpTimer() {
         if (timeLeft <= 0) {
             clearInterval(countdownInterval);
             resendBtn.classList.remove("hidden");
-            showError("error-otp", "OTP expired. Please click Resend OTP.");
+            showError("membership-error-otp", "OTP expired. Please click Resend OTP.");
         }
     }, 1000);
 }
@@ -267,13 +267,13 @@ function startOtpTimer() {
 async function handleOtpSubmit(event) {
     event.preventDefault();
     clearErrors();
-    const otpCode = document.getElementById("otp-code").value.trim();
+    const otpCode = document.getElementById("membership-otp-code").value.trim();
     if (!otpCode || otpCode.length !== 6) {
-        showError("error-otp", "Please enter a valid 6-digit OTP.");
+        showError("membership-error-otp", "Please enter a valid 6-digit OTP.");
         return;
     }
     
-    const verifyBtn = document.getElementById("verify-otp-btn");
+    const verifyBtn = document.getElementById("membership-verify-otp-btn");
     verifyBtn.disabled = true;
     verifyBtn.innerText = "Verifying...";
     
@@ -289,9 +289,9 @@ async function handleOtpSubmit(event) {
         if (result.success) {
             showGlobalSuccess(result.message);
             clearInterval(countdownInterval);
-            document.getElementById("otp-form").classList.add("hidden");
-            document.getElementById("resend-otp-btn").classList.add("hidden");
-            document.getElementById("timer-display").classList.add("hidden");
+            document.getElementById("membership-otp-form").classList.add("hidden");
+            document.getElementById("membership-resend-otp-btn").classList.add("hidden");
+            document.getElementById("membership-timer-display").classList.add("hidden");
             
             // Redirect seamlessly to Shopify Login page
             verifyBtn.innerText = "Redirecting...";
@@ -299,11 +299,11 @@ async function handleOtpSubmit(event) {
                 window.location.href = "/account/login";
             }, 1000);
         } else {
-            showError("error-otp", result.message);
+            showError("membership-error-otp", result.message);
         }
     } catch (error) {
         console.error("Verify Error:", error);
-        showError("error-otp", "Server error during verification.");
+        showError("membership-error-otp", "Server error during verification.");
     } finally {
         verifyBtn.disabled = false;
         verifyBtn.innerText = "Verify OTP";
@@ -312,7 +312,7 @@ async function handleOtpSubmit(event) {
 
 async function handleResendOtp() {
     clearErrors();
-    const resendBtn = document.getElementById("resend-otp-btn");
+    const resendBtn = document.getElementById("membership-resend-otp-btn");
     resendBtn.disabled = true;
     resendBtn.innerText = "Resending...";
     
@@ -327,7 +327,7 @@ async function handleResendOtp() {
         
         if (result.success) {
             showGlobalSuccess(result.message);
-            document.getElementById("otp-code").value = ""; // clear old OTP
+            document.getElementById("membership-otp-code").value = ""; // clear old OTP
             startOtpTimer(); // restarts 1-min timer
         } else {
             showGlobalError(result.message);
