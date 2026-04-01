@@ -32,7 +32,22 @@ export const action = async ({ request }) => {
       const prisma = (await import("../db.server")).default;
       const oauthRecord = await prisma.oAuthVerification.findUnique({ where: { id: oauthToken } });
       if (!oauthRecord || oauthRecord.email !== email || new Date() > oauthRecord.expiresAt) {
-        return Response.json({ success: false, message: "Invalid or expired Google session. Please login with Google again." }, { status: 400 });
+        return Response.json({ success: false, message: "Invalid or expired session. Please login again." }, { status: 400 });
+      }
+
+      // --- CRITICAL FIX: CHECK IF CUSTOMER ALREADY EXISTS ---
+      const emailCheckResponse = await admin.graphql(
+        `query getCustomerByEmail($query: String!) {
+          customers(first: 1, query: $query) {
+            edges { node { id } }
+          }
+        }`,
+        { variables: { query: `email:${email}` } }
+      );
+      const emailCheckData = await emailCheckResponse.json();
+      if (emailCheckData.data?.customers?.edges?.length > 0) {
+        const providerName = oauthRecord.provider.charAt(0).toUpperCase() + oauthRecord.provider.slice(1);
+        return Response.json({ success: false, message: `This ${providerName} account is already connected.` }, { status: 400 });
       }
 
       // 2. Finalize Registration IMMEDIATELY (Skip OTP)
