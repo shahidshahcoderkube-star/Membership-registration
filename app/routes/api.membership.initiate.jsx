@@ -104,12 +104,24 @@ export const action = async ({ request }) => {
       return Response.json({ success: false, message: "Email already exists" }, { status: 400 });
     }
 
+    // 2.7. AUTOMATIC DATABASE CLEANUP
+    // Delete any abandoned registrations older than 24 hours to prevent bloat
+    const prisma = (await import("../db.server")).default;
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    try {
+      await Promise.all([
+        prisma.otpVerification.deleteMany({ where: { createdAt: { lt: oneDayAgo } } }),
+        prisma.oAuthVerification.deleteMany({ where: { createdAt: { lt: oneDayAgo } } })
+      ]);
+    } catch (cleanupError) {
+      console.warn("Silent failure during DB cleanup:", cleanupError);
+    }
+
     // 3. Generate 6-digit Code & Expiry (1 MINUTE)
     const otpCode = generateOTP();
     const expiresAt = new Date(Date.now() + 60 * 1000);
 
     // 4. Upsert data to Prisma
-    const prisma = (await import("../db.server")).default;
     await prisma.otpVerification.upsert({
       where: { email },
       update: {

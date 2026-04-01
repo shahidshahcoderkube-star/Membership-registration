@@ -30,6 +30,18 @@ export const action = async ({ request }) => {
       return Response.json({ success: false, message: "No pending registration found to resend." }, { status: 404 });
     }
 
+    // 1.5. AUTOMATIC DATABASE CLEANUP
+    // Delete any abandoned registrations older than 24 hours
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    try {
+      await Promise.all([
+        prisma.otpVerification.deleteMany({ where: { createdAt: { lt: oneDayAgo } } }),
+        prisma.oAuthVerification.deleteMany({ where: { createdAt: { lt: oneDayAgo } } })
+      ]);
+    } catch (cleanupError) {
+      console.warn("Silent failure during DB cleanup:", cleanupError);
+    }
+
     // 2. Generate new OTP and reset 1-minute clock
     const newOtpCode = generateOTP();
     const newExpiresAt = new Date(Date.now() + 60 * 1000); // 1 minute from now
