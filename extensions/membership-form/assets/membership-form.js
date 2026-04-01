@@ -192,6 +192,17 @@ async function handleRegistrationSubmit(event) {
         console.log("API Result:", result);
         
         if (result.success) {
+            // --- CLEAR FORM DATA IMMEDIATELY ---
+            const form = document.getElementById("membership-form");
+            if (form) form.reset();
+            
+            if (ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            signaturePadActive = !1;
+            document.getElementById("signature-data").value = "";
+            document.body.removeAttribute('data-oauth-token');
+
             // Check if backend wants an immediate redirect (e.g. Google registration finished)
             if (result.redirect) {
                 showGlobalSuccess(result.message || "Registration complete! Redirecting...");
