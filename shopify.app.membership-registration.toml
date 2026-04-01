@@ -20,9 +20,7 @@ api_version = "2025-10"
 scopes = "read_customers,read_files,read_orders,read_products,write_customers,write_files,write_metaobject_definitions,write_metaobjects,write_products"
 
 [auth]
-redirect_urls = [
-  "https://membership-registration-9h9v.vercel.app/auth"
-]
+redirect_urls = [ "https://membership-registration-9h9v.vercel.app/auth" ]
 
 [app_proxy]
 url = "https://membership-registration-9h9v.vercel.app/api/membership"
