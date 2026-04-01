@@ -1,7 +1,11 @@
 <div class="membership-registration-wrapper" id="membership-registration-wrapper">
   <!-- Global message box for overall Success or Errors -->
   <div id="membership-global-message" class="message-container hidden"></div>
-  <form id="membership-reg-form" class="membership-form" data-shop="{{ shop.domain }}" onsubmit="handleRegistrationSubmit(event)">
+  <form id="membership-reg-form" 
+    class="membership-form" 
+    data-shop="{{ shop.domain }}" 
+    data-proxy-url="/{{ block.settings.proxy_prefix }}/{{ block.settings.proxy_subpath }}"
+    onsubmit="handleRegistrationSubmit(event)">
     <h2>Membership Application</h2>
 
     <div class="oauth-wrapper">
@@ -87,6 +91,26 @@
   "target": "section",
   "stylesheet": "membership-form.css",
   "javascript": "membership-form.js",
-  "settings": []
+  "settings": [
+    {
+      "type": "select",
+      "id": "proxy_prefix",
+      "label": "Proxy Prefix",
+      "options": [
+        { "value": "apps", "label": "apps" },
+        { "value": "a", "label": "a" },
+        { "value": "community", "label": "community" },
+        { "value": "tools", "label": "tools" }
+      ],
+      "default": "apps"
+    },
+    {
+      "type": "text",
+      "id": "proxy_subpath",
+      "label": "Proxy Subpath",
+      "default": "membership",
+      "info": "This must match the App Proxy Subpath setting in your Shopify Partner Dashboard."
+    }
+  ]
 }
 {% endschema %}

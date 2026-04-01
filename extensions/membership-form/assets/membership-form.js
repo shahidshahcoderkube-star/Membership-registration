@@ -22,7 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
         
         if (googleBtn) {
             googleBtn.addEventListener("click", function() {
-                const shopDomain = document.getElementById("membership-reg-form").getAttribute("data-shop");
+                const form = document.getElementById("membership-reg-form");
+                const shopDomain = form.getAttribute("data-shop");
+                const proxyUrl = form.getAttribute("data-proxy-url");
                 if (!shopDomain) {
                     alert("Shop domain not found. Please refresh.");
                     return;
@@ -30,13 +32,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 // Redirect user to the proxy route that initiates Google OAuth
                 const returnTo = window.location.pathname + window.location.search;
-                window.location.href = `/apps/membership/google/login?shop=${encodeURIComponent(shopDomain)}&return_to=${encodeURIComponent(returnTo)}`;
+                window.location.href = `${proxyUrl}/google/login?shop=${encodeURIComponent(shopDomain)}&return_to=${encodeURIComponent(returnTo)}`;
             });
         }
 
         if (facebookBtn) {
             facebookBtn.addEventListener("click", function() {
-                const shopDomain = document.getElementById("membership-reg-form").getAttribute("data-shop");
+                const form = document.getElementById("membership-reg-form");
+                const shopDomain = form.getAttribute("data-shop");
+                const proxyUrl = form.getAttribute("data-proxy-url");
                 if (!shopDomain) {
                     alert("Shop domain not found. Please refresh.");
                     return;
@@ -44,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 // Redirect user to the proxy route that initiates Facebook OAuth
                 const returnTo = window.location.pathname + window.location.search;
-                window.location.href = `/apps/membership/facebook/login?shop=${encodeURIComponent(shopDomain)}&return_to=${encodeURIComponent(returnTo)}`;
+                window.location.href = `${proxyUrl}/facebook/login?shop=${encodeURIComponent(shopDomain)}&return_to=${encodeURIComponent(returnTo)}`;
             });
         }
     }
@@ -97,7 +101,8 @@ function resetRegistrationForm() {
 async function handleOAuthReturn(token) {
     showGlobalSuccess("Google account linked. Please complete the signature below.");
     try {
-        const response = await fetch(`/apps/membership/oauth-data?token=${token}`);
+        const proxyUrl = document.getElementById("membership-reg-form").getAttribute("data-proxy-url");
+        const response = await fetch(`${proxyUrl}/oauth-data?token=${token}`);
         const result = await response.json();
         
         if (result.success) {
@@ -196,7 +201,8 @@ async function handleRegistrationSubmit(event) {
                 agreement,
                 oauthToken: oauthToken || null
             },
-            response = await fetch("/apps/membership/initiate", {
+            proxyUrl = document.getElementById("membership-reg-form").getAttribute("data-proxy-url"),
+            response = await fetch(`${proxyUrl}/initiate`, {
 
                 method: "POST",
                 headers: {
@@ -278,7 +284,8 @@ async function handleOtpSubmit(event) {
     verifyBtn.innerText = "Verifying...";
     
     try {
-        const response = await fetch("/apps/membership/verify", {
+        const proxyUrl = document.getElementById("membership-reg-form").getAttribute("data-proxy-url");
+        const response = await fetch(`${proxyUrl}/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: currentEmail, otpCode })
@@ -317,7 +324,8 @@ async function handleResendOtp() {
     resendBtn.innerText = "Resending...";
     
     try {
-        const response = await fetch("/apps/membership/resend", {
+        const proxyUrl = document.getElementById("membership-reg-form").getAttribute("data-proxy-url");
+        const response = await fetch(`${proxyUrl}/resend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: currentEmail })
