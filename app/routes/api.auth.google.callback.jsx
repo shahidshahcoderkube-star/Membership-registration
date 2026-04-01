@@ -68,46 +68,80 @@ export const loader = async ({ request }) => {
   }
 
 
-  // 3. Store in Prisma temporary OAuth table
-  const prisma = (await import("../db.server")).default;
-  const oauthRecord = await prisma.oAuthVerification.upsert({
-    where: { email },
-    update: {
-      firstName: firstName,
-      lastName: lastName,
-      provider: "google",
-      expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 mins
-    },
-    create: {
-      email,
-      firstName: firstName,
-      lastName: lastName,
-      provider: "google",
-      expiresAt: new Date(Date.now() + 15 * 60 * 1000),
-    },
-  });
-
-
-  // 4. Redirect back to the original page where the user started registration
-  let returnUrl = `https://${shop}/?oauth_token=${oauthRecord.id}`;
+  // 3. Check if Shopify customer already exists and Store in Prisma
   try {
-    const stateObj = JSON.parse(shop);
-    const finalShop = stateObj.shop;
-    const finalReturnTo = stateObj.returnTo;
-    
-    // Ensure returnTo starts with /
-    const cleanReturnTo = finalReturnTo.startsWith('/') ? finalReturnTo : `/${finalReturnTo}`;
-    
-    // Combine to form the full Shopify URL
-    // We append the oauth_token so the liquid block can detect it
+    const prisma = (await import("../db.server")).default;
+    const shopify = (await import("../shopify.server")).default;
+
+    // Determine the actual shop domain for API calls
+    let targetShop = shop;
+    let targetReturnTo = "/";
+    try {
+      const stateObj = JSON.parse(shop);
+      targetShop = stateObj.shop;
+      targetReturnTo = stateObj.returnTo;
+    } catch (e) {
+      // Fallback
+    }
+
+    // A. Check if customer exists in Shopify
+    const { admin } = await shopify.unauthenticated.admin(targetShop);
+    const response = await admin.graphql(
+      `#graphql
+      query findCustomerByEmail($query: String!) {
+        customers(first: 1, query: $query) {
+          nodes {
+            id
+          }
+        }
+      }
+      `,
+      {
+        variables: {
+          query: `email:${email}`,
+        },
+      }
+    );
+
+    const responseJson = await response.json();
+    const existingCustomers = responseJson.data?.customers?.nodes || [];
+
+    if (existingCustomers.length > 0) {
+      console.log(`Google Registration: Customer already exists for ${email}`);
+      const cleanReturnTo = targetReturnTo.startsWith('/') ? targetReturnTo : `/${targetReturnTo}`;
+      const separator = cleanReturnTo.includes('?') ? '&' : '?';
+      const errorUrl = `https://${targetShop}${cleanReturnTo}${separator}error=account_exists`;
+      return redirect(errorUrl);
+    }
+
+    // B. Create/Update the temporary OAuth record 
+    const oauthRecord = await prisma.oAuthVerification.upsert({
+      where: { email },
+      update: {
+        firstName: firstName,
+        lastName: lastName,
+        provider: "google",
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 mins
+      },
+      create: {
+        email,
+        firstName: firstName,
+        lastName: lastName,
+        provider: "google",
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+
+    // 4. Redirect back to the original page with the token
+    const cleanReturnTo = targetReturnTo.startsWith('/') ? targetReturnTo : `/${targetReturnTo}`;
     const separator = cleanReturnTo.includes('?') ? '&' : '?';
-    returnUrl = `https://${finalShop}${cleanReturnTo}${separator}oauth_token=${oauthRecord.id}`;
-  } catch (e) {
-    // Fallback if state is not JSON (e.g. from an old request)
-    returnUrl = `https://${shop}/?oauth_token=${oauthRecord.id}`;
+    const finalReturnUrl = `https://${targetShop}${cleanReturnTo}${separator}oauth_token=${oauthRecord.id}`;
+    
+    return redirect(finalReturnUrl);
+
+  } catch (error) {
+    console.error("Google OAuth Callback Error:", error);
+    return new Response("An unexpected error occurred during Google registration. Please try again.", { status: 500 });
   }
-
-  return redirect(returnUrl);
-
 };
 
