@@ -21,7 +21,7 @@ scopes = "read_customers,read_files,read_orders,read_products,write_customers,wr
 
 [auth]
 redirect_urls = [
-  "https://membership-registration-9h9v.vercel.app/api/auth"
+  "https://membership-registration-9h9v.vercel.app/auth"
 ]
 
 [app_proxy]
