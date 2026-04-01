@@ -192,7 +192,7 @@ async function handleRegistrationSubmit(event) {
                 firstName,
                 lastName,
                 email,
-                signature: document.getElementById("signature-data").value,
+                signature: document.getElementById("membership-signature-data").value,
                 agreement,
                 oauthToken: oauthToken || null
             },
