@@ -16,7 +16,7 @@ const shopify = shopifyApp({
 
   restResources,
   scopes: process.env.SCOPES?.split(","),
-  appUrl: process.env.SHOPIFY_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ""),
+  appUrl: process.env.SHOPIFY_APP_URL || "https://membership-registration-9h9v.vercel.app",
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
