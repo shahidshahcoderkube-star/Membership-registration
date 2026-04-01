@@ -130,11 +130,32 @@ export const action = async ({ request }) => {
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
 
+    const htmlTemplate = `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #333; font-size: 24px; margin-bottom: 10px;">Verify Your Email</h1>
+          <p style="color: #666; font-size: 16px;">Hello ${firstName}, please use the verification code below to complete your membership application.</p>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 30px;">
+          <span style="display: block; font-size: 36px; font-weight: bold; letter-spacing: 5px; color: #000;">${otpCode}</span>
+        </div>
+        <div style="text-align: center; color: #999; font-size: 14px;">
+          <p>This code will expire in <strong>1 minute</strong>.</p>
+          <p>If you did not request this code, please ignore this email.</p>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+        <div style="text-align: center; color: #bbb; font-size: 12px;">
+          <p>&copy; ${new Date().getFullYear()} Living Light Health. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
     const mailOptions = {
       from: process.env.SMTP_USER,
       to: email,
       subject: "Your Membership Verification Code",
-      text: `Hello ${firstName},\n\nYour Verification Code is: ${otpCode}\n\nThis code will expire in exactly 1 minute. Please enter it quickly on the website to complete your registration.\n\nThank you!`,
+      text: `Hello ${firstName},\n\nYour Verification Code is: ${otpCode}\n\nThis code will expire in 1 minute. Please enter it on the website to complete your registration.\n\nThank you!`,
+      html: htmlTemplate
     };
 
     try {
