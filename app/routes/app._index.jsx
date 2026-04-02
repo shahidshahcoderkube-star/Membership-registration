@@ -9,7 +9,7 @@ export default function Index() {
   const customerAdminUrl = "https://admin.shopify.com/store/testing-1234563457896534798625436790315/customers";
 
   return (
-    <s-page heading="Membership Registration Dashboard">
+    <s-page heading="Membership Registration Dashboard v1.0">
       <s-section heading="Application Installed Successfully">
         <s-paragraph>
           Your <strong>Custom Registration Type</strong> app is fully configured and active.
@@ -17,11 +17,11 @@ export default function Index() {
         <s-paragraph>
           All new members who register via your website form will appear in your Shopify Customers list with their signed membership agreements attached to their profiles.
         </s-paragraph>
-
+        
         <s-stack direction="inline" gap="base" padding-block-start="base">
-          <s-button
-            variant="primary"
-            href={customerAdminUrl}
+          <s-button 
+            variant="primary" 
+            href={customerAdminUrl} 
             target="_top"
           >
             View Registered Customers
