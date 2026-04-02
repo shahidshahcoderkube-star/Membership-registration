@@ -1,4 +1,9 @@
 <div class="membership-registration-wrapper" id="membership-registration-wrapper">
+  {% style %}
+    .signature-pad {
+      cursor: url("{{ 'bolpen.cur' | asset_url }}"), crosshair !important;
+    }
+  {% endstyle %}
   <!-- Global message box for overall Success or Errors -->
   <div id="membership-global-message" class="message-container hidden"></div>
   <form id="membership-reg-form" 
