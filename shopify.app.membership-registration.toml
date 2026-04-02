@@ -1,6 +1,6 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "1b706e4a05a3ac59e3b79a982daddecc"
+client_id = "d2b0d7304592b41021eb1d6e6f376847"
 name = "Membership Registration"
 application_url = "https://membership-registration-9h9v.vercel.app"
 embedded = true
