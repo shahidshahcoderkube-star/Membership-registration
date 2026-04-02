@@ -35,7 +35,7 @@ export default function Index() {
             To see a member's signed agreement, open their customer profile and look for the <strong>Membership Agreement</strong> file in the Metafields section.
           </s-list-item>
           <s-list-item>
-            The registration form is currently active on your "Membership Registration" page.
+            The registration form is currently active on your "Membership Registration" pages.
           </s-list-item>
         </s-unordered-list>
       </s-section>
