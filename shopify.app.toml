@@ -1,24 +1,32 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "82deb902f933ae6e6b3cccccd6f5463b"
-name = "otp_registartion"
-application_url = "https://validity-divided-amended-pencil.trycloudflare.com"
+client_id = "d2b0d7304592b41021eb1d6e6f376847"
+name = "Membership Registration"
+application_url = "https://membership-registration-9h9v.vercel.app"
 embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
 
 [webhooks]
 api_version = "2025-10"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_customers,read_files,read_orders,read_products,write_customers,write_files,write_metaobject_definitions,write_metaobjects,write_products"
 
 [auth]
-redirect_urls = [ "https://validity-divided-amended-pencil.trycloudflare.com/api/auth" ]
-
-[build]
-automatically_update_urls_on_dev = true
+redirect_urls = [
+  "https://membership-registration-9h9v.vercel.app/",
+  "https://membership-registration-9h9v.vercel.app/auth",
+  "https://membership-registration-9h9v.vercel.app/auth/callback"
+]
 
 [app_proxy]
-url = "https://validity-divided-amended-pencil.trycloudflare.com/api/membership"
+url = "https://membership-registration-9h9v.vercel.app/api/membership"
 subpath = "membership"
 prefix = "apps"
