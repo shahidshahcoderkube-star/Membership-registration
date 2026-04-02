@@ -93,7 +93,7 @@
 	background-color: #fff;
 	width: 100%;
 	max-width: 500px;
-	cursor: url('bolpen.cur') 0 32, crosshair;
+	cursor: url('Pen.png');
 }
 
 .btn-clear-signature {
