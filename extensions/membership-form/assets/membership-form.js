@@ -5,6 +5,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.getElementById("membership-signature-pad");
     if (canvas) {
         ctx = canvas.getContext("2d");
+        
+        // --- CUSTOM CURSOR FIX ---
+        const regForm = document.getElementById("membership-reg-form");
+        const customCursorUrl = regForm ? regForm.getAttribute("data-cursor-url") : null;
+        if (customCursorUrl) {
+            // Using 0 32 for the hotspot (bottom-left) which is standard for pens
+            canvas.style.cursor = `url("${customCursorUrl}") 0 32, crosshair`;
+        }
+
         canvas.addEventListener("mousedown", startDrawing);
         canvas.addEventListener("mousemove", draw);
         canvas.addEventListener("mouseup", stopDrawing);

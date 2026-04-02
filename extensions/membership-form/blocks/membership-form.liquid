@@ -1,15 +1,11 @@
 <div class="membership-registration-wrapper" id="membership-registration-wrapper">
-  {% style %}
-    .signature-pad {
-      cursor: url("{{ 'bolpen.cur' | asset_url }}"), crosshair !important;
-    }
-  {% endstyle %}
   <!-- Global message box for overall Success or Errors -->
   <div id="membership-global-message" class="message-container hidden"></div>
   <form id="membership-reg-form" 
     class="membership-form" 
     data-shop="{{ shop.domain }}" 
     data-proxy-url="/{{ block.settings.proxy_prefix }}/{{ block.settings.proxy_subpath }}"
+    data-cursor-url="{{ 'bolpen.cur' | asset_url }}"
     onsubmit="handleRegistrationSubmit(event)">
     <h2>Membership Application</h2>
 
