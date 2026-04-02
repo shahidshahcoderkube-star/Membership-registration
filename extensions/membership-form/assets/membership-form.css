@@ -93,7 +93,7 @@
 	background-color: #fff;
 	width: 100%;
 	max-width: 500px;
-	cursor: url('https://i.ibb.co/YBMB65kR/pen.png') 32 32, crosshair;
+	cursor: url('https://i.ibb.co/YBMB65kR/pen.png') 0 32, crosshair;
 }
 
 .btn-clear-signature {
