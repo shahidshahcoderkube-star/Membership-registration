@@ -12,7 +12,7 @@ export default function Index() {
     <s-page heading="Membership Registration">
       <s-section heading="Application Installed Successfully">
         <s-paragraph>
-          Your <strong>Custom Registration Type</strong> app is fully configured and active.
+          Your <strong>Membership Registration</strong> app is fully configured and active.
         </s-paragraph>
         <s-paragraph>
           All new members who register via your website form will appear in your Shopify Customers list with their signed membership agreements attached to their profiles.
