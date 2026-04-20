@@ -1,6 +1,6 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "92d76cc8dbd6476cc0fb97dd5ac4ec2b"
+client_id = "7a2aca21aa48bf98ff2b3422ebd67e37"
 name = "Membership Registration"
 application_url = "https://membership-registration-9h9v.vercel.app"
 embedded = true
@@ -17,7 +17,7 @@ api_version = "2025-10"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_customers,read_files,read_orders,read_products,write_customers,write_files,write_metaobject_definitions,write_metaobjects,write_products,unauthenticated_read_customers,unauthenticated_read_product_listings,unauthenticated_write_checkouts,unauthenticated_read_checkouts"
+scopes = "read_customers,read_files,read_orders,read_products,write_customers,write_files,write_metaobject_definitions,write_metaobjects,write_products"
 
 [auth]
 redirect_urls = [
