@@ -11,11 +11,29 @@ export const action = async ({ request }) => {
 
   try {
     // 1. Authenticate the App Proxy request from Shopify
-    const { authenticate } = await import("../shopify.server");
-    const { admin } = await authenticate.public.appProxy(request);
+    let auth;
+    try {
+      const { authenticate } = await import("../shopify.server");
+      auth = await authenticate.public.appProxy(request);
+      console.log(`[Proxy Auth] Authenticated for shop: ${auth.session?.shop}`);
+    } catch (authError) {
+      console.error("❌ Proxy Auth Error:", authError.message);
+      // In App Proxy, if HMAC is invalid, the library throws a 400 Response.
+      // We catch it here to return a clean JSON error instead of an HTML crash.
+      return Response.json({ 
+        success: false, 
+        message: "Invalid proxy signature. Please try reloading the page from your shop admin." 
+      }, { status: 400 });
+    }
+
+    const { admin, session } = auth;
 
     if (!admin) {
-      return Response.json({ success: false, message: "Unauthorized proxy request" }, { status: 401 });
+      console.warn("⚠️ No admin session found in proxy request.");
+      return Response.json({ 
+        success: false, 
+        message: "Session expired or app not installed. Please re-open the app in Shopify Admin to refresh your session." 
+      }, { status: 401 });
     }
 
     // 2. Parse the JSON body
@@ -173,13 +191,14 @@ export const action = async ({ request }) => {
     try {
       if (process.env.SMTP_USER && process.env.SMTP_PASS) {
         await transporter.sendMail(mailOptions);
-        console.log(`✅ SUCCESS: OTP sent to ${email}`);
+        console.log(`✅ SUCCESS: OTP [${otpCode}] sent to ${email}`);
       } else {
         console.warn(`⚠️ WARNING: SMTP credentials missing in .env! Cannot send email. Code: ${otpCode}`);
+        return Response.json({ success: false, message: "Server configuration error: Missing email credentials." }, { status: 500 });
       }
     } catch (emailError) {
-      console.error("Nodemailer failed:", emailError);
-      return Response.json({ success: false, message: "Failed to send email. Check Nodemailer config." }, { status: 500 });
+      console.error("❌ Nodemailer failed:", emailError.message);
+      return Response.json({ success: false, message: "Failed to send verification email. Please check your internet connection or email address." }, { status: 500 });
     }
 
     return Response.json({ success: true, message: "Verification code sent successfully!" });
