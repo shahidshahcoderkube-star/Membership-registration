@@ -6,7 +6,7 @@ export const loader = async ({ request }) => {
 };
 
 export default function Index() {
-  const customerAdminUrl = "https://admin.shopify.com/store/testing-1234563457896534798625436790315/customers";
+  const customerAdminUrl = "https://admin.shopify.com/store/floralive/customers";
 
   return (
     <s-page heading="Membership Registration">
