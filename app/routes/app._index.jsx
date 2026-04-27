@@ -1,12 +1,15 @@
+import { useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }) => {
-  await authenticate.admin(request);
-  return null;
+  const { session } = await authenticate.admin(request);
+  const shop = session.shop.replace(".myshopify.com", "");
+  return { shop };
 };
 
 export default function Index() {
-  const customerAdminUrl = "https://admin.shopify.com/store/floralive/customers";
+  const { shop } = useLoaderData();
+  const customerAdminUrl = `https://admin.shopify.com/store/${shop}/customers`;
 
   return (
     <s-page heading="Membership Registration">
