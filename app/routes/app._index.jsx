@@ -21,7 +21,7 @@ export default function Index() {
           All new members who register via your website form will appear in your Shopify Customers list with their signed membership agreements attached to their profiles.
         </s-paragraph>
 
-        <s-stack direction="inline" gap="base" padding-block-start="base">
+        {/* <s-stack direction="inline" gap="base" padding-block-start="base">
           <s-button
             variant="primary"
             href={customerAdminUrl}
@@ -29,7 +29,7 @@ export default function Index() {
           >
             View Registered Customers
           </s-button>
-        </s-stack>
+        </s-stack> */}
       </s-section>
 
       <s-section heading="Quick Tips">
