@@ -93,8 +93,7 @@
 	background-color: #fff;
 	width: 100%;
 	max-width: 500px;
-	/* cursor: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjkuNSAyLjVMMTMgMTlMMTEgMjFMMTAgMjhMMTcgMjdMMTkgMjVMMzIgOS41TDI5LjUgMi41WiIgZmlsbD0iIzMzMyIvPgogIDxwYXRoIGQ9Ik0xMCAyOEwxMSAyMUwxMyAxOUwxNyAyN0wxMCAyOFoiIGZpbGw9IiNDMEMwQzAiLz4KICA8cGF0aCBkPSJNMTAgMjhMOCAzMEw2IDMyTDggMzBMMTAgMjhaIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZD0iTTI5LjUgMi41TDMyIDkuNUwyOC41IDEzTDI2IDZMMjkuNSAyLjVaIiBmaWxsPSIjNDQ0Ii8+Cjwvc3ZnPg==') 0 32, crosshair; */
-	cursor: url('pen.cur') 0 32, crosshair;
+	cursor: url('https://i.ibb.co/YBMB65kR/pen.png') 0 32, crosshair;
 }
 
 .btn-clear-signature {
@@ -259,4 +258,44 @@
 
 input[type=checkbox] {
 	margin-top: 7px;
+}
+
+/* Premium Button Loading Styles */
+.btn-loading {
+	position: relative !important;
+	color: transparent !important;
+	pointer-events: none !important;
+}
+
+.btn-loading::after {
+	content: "";
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	top: 50%;
+	left: 50%;
+	margin-top: -10px;
+	margin-left: -10px;
+	border: 3px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #ffffff;
+	border-radius: 50%;
+	animation: button-loading-spinner 0.8s linear infinite;
+}
+
+/* Secondary or White button spinner colors */
+.btn-secondary.btn-loading::after,
+.btn-google-auth.btn-loading::after,
+.btn-clear-signature.btn-loading::after {
+	border: 3px solid rgba(0, 0, 0, 0.1);
+	border-top-color: #000000;
+}
+
+@keyframes button-loading-spinner {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
 }

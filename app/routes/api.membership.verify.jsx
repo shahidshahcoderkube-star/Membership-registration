@@ -54,6 +54,15 @@ export const action = async ({ request }) => {
 
     } catch (finalizeError) {
       console.error("Finalization error:", finalizeError);
+      
+      // If Shopify says the email is taken, it's a "connected" account error
+      if (finalizeError.message.toLowerCase().includes("taken") || finalizeError.message.toLowerCase().includes("exists")) {
+        return Response.json({ 
+          success: false, 
+          message: `This account is already connected.` 
+        }, { status: 400 });
+      }
+
       return Response.json({ success: false, message: finalizeError.message }, { status: 500 });
     }
 

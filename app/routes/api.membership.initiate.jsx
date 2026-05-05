@@ -11,11 +11,29 @@ export const action = async ({ request }) => {
 
   try {
     // 1. Authenticate the App Proxy request from Shopify
-    const { authenticate } = await import("../shopify.server");
-    const { admin } = await authenticate.public.appProxy(request);
+    let auth;
+    try {
+      const { authenticate } = await import("../shopify.server");
+      auth = await authenticate.public.appProxy(request);
+      console.log(`[Proxy Auth] Authenticated for shop: ${auth.session?.shop}`);
+    } catch (authError) {
+      console.error("❌ Proxy Auth Error:", authError.message);
+      // In App Proxy, if HMAC is invalid, the library throws a 400 Response.
+      // We catch it here to return a clean JSON error instead of an HTML crash.
+      return Response.json({ 
+        success: false, 
+        message: "Invalid proxy signature. Please try reloading the page from your shop admin." 
+      }, { status: 400 });
+    }
+
+    const { admin, session } = auth;
 
     if (!admin) {
-      return Response.json({ success: false, message: "Unauthorized proxy request" }, { status: 401 });
+      console.warn("⚠️ No admin session found in proxy request.");
+      return Response.json({ 
+        success: false, 
+        message: "Session expired or app not installed. Please re-open the app in Shopify Admin to refresh your session." 
+      }, { status: 401 });
     }
 
     // 2. Parse the JSON body
@@ -32,7 +50,22 @@ export const action = async ({ request }) => {
       const prisma = (await import("../db.server")).default;
       const oauthRecord = await prisma.oAuthVerification.findUnique({ where: { id: oauthToken } });
       if (!oauthRecord || oauthRecord.email !== email || new Date() > oauthRecord.expiresAt) {
-        return Response.json({ success: false, message: "Invalid or expired Google session. Please login with Google again." }, { status: 400 });
+        return Response.json({ success: false, message: "Invalid or expired session. Please login again." }, { status: 400 });
+      }
+
+      // --- CRITICAL FIX: CHECK IF CUSTOMER ALREADY EXISTS ---
+      const emailCheckResponse = await admin.graphql(
+        `query getCustomerByEmail($query: String!) {
+          customers(first: 1, query: $query) {
+            edges { node { id } }
+          }
+        }`,
+        { variables: { query: `email:${email}` } }
+      );
+      const emailCheckData = await emailCheckResponse.json();
+      if (emailCheckData.data?.customers?.edges?.length > 0) {
+        const providerName = oauthRecord.provider.charAt(0).toUpperCase() + oauthRecord.provider.slice(1);
+        return Response.json({ success: false, message: `This ${providerName} account is already connected.` }, { status: 400 });
       }
 
       // 2. Finalize Registration IMMEDIATELY (Skip OTP)
@@ -59,6 +92,16 @@ export const action = async ({ request }) => {
 
       } catch (finalizeError) {
         console.error("OAuth Registration finalization error:", finalizeError);
+        
+        // If Shopify says the email is taken, it's a "connected" account error
+        if (finalizeError.message.toLowerCase().includes("taken") || finalizeError.message.toLowerCase().includes("exists")) {
+          const providerName = oauthRecord.provider.charAt(0).toUpperCase() + oauthRecord.provider.slice(1);
+          return Response.json({ 
+            success: false, 
+            message: `This ${providerName} account is already connected.` 
+          }, { status: 400 });
+        }
+
         return Response.json({ success: false, message: finalizeError.message }, { status: 500 });
       }
     }
@@ -79,12 +122,24 @@ export const action = async ({ request }) => {
       return Response.json({ success: false, message: "Email already exists" }, { status: 400 });
     }
 
+    // 2.7. AUTOMATIC DATABASE CLEANUP
+    // Delete any abandoned registrations older than 24 hours to prevent bloat
+    const prisma = (await import("../db.server")).default;
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    try {
+      await Promise.all([
+        prisma.otpVerification.deleteMany({ where: { createdAt: { lt: oneDayAgo } } }),
+        prisma.oAuthVerification.deleteMany({ where: { createdAt: { lt: oneDayAgo } } })
+      ]);
+    } catch (cleanupError) {
+      console.warn("Silent failure during DB cleanup:", cleanupError);
+    }
+
     // 3. Generate 6-digit Code & Expiry (1 MINUTE)
     const otpCode = generateOTP();
     const expiresAt = new Date(Date.now() + 60 * 1000);
 
     // 4. Upsert data to Prisma
-    const prisma = (await import("../db.server")).default;
     await prisma.otpVerification.upsert({
       where: { email },
       update: {
@@ -105,23 +160,45 @@ export const action = async ({ request }) => {
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
 
+    const htmlTemplate = `
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #333; font-size: 24px; margin-bottom: 10px;">Verify Your Email</h1>
+          <p style="color: #666; font-size: 16px;">Hello ${firstName}, please use the verification code below to complete your membership application.</p>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 30px;">
+          <span style="display: block; font-size: 36px; font-weight: bold; letter-spacing: 5px; color: #000;">${otpCode}</span>
+        </div>
+        <div style="text-align: center; color: #999; font-size: 14px;">
+          <p>This code will expire in <strong>1 minute</strong>.</p>
+          <p>If you did not request this code, please ignore this email.</p>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+        <div style="text-align: center; color: #bbb; font-size: 12px;">
+          <p>&copy; ${new Date().getFullYear()} Living Light Health. All rights reserved.</p>
+        </div>
+      </div>
+    `;
+
     const mailOptions = {
       from: process.env.SMTP_USER,
       to: email,
       subject: "Your Membership Verification Code",
-      text: `Hello ${firstName},\n\nYour Verification Code is: ${otpCode}\n\nThis code will expire in exactly 1 minute. Please enter it quickly on the website to complete your registration.\n\nThank you!`,
+      text: `Hello ${firstName},\n\nYour Verification Code is: ${otpCode}\n\nThis code will expire in 1 minute. Please enter it on the website to complete your registration.\n\nThank you!`,
+      html: htmlTemplate
     };
 
     try {
       if (process.env.SMTP_USER && process.env.SMTP_PASS) {
         await transporter.sendMail(mailOptions);
-        console.log(`✅ SUCCESS: OTP sent to ${email}`);
+        console.log(`✅ SUCCESS: OTP [${otpCode}] sent to ${email}`);
       } else {
         console.warn(`⚠️ WARNING: SMTP credentials missing in .env! Cannot send email. Code: ${otpCode}`);
+        return Response.json({ success: false, message: "Server configuration error: Missing email credentials." }, { status: 500 });
       }
     } catch (emailError) {
-      console.error("Nodemailer failed:", emailError);
-      return Response.json({ success: false, message: "Failed to send email. Check Nodemailer config." }, { status: 500 });
+      console.error("❌ Nodemailer failed:", emailError.message);
+      return Response.json({ success: false, message: "Failed to send verification email. Please check your internet connection or email address." }, { status: 500 });
     }
 
     return Response.json({ success: true, message: "Verification code sent successfully!" });
