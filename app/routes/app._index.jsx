@@ -12,7 +12,7 @@ export default function Index() {
   const customerAdminUrl = `https://admin.shopify.com/store/${shop}/customers`;
 
   return (
-    <s-page heading="Membership Registration">
+    <s-page heading="Membership Registration sdtest">
       <s-section heading="Application Installed Successfully">
         <s-paragraph>
           Your <strong>Membership Registration</strong> app is fully configured and active.
