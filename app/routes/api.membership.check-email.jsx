@@ -1,8 +1,6 @@
-import { json } from "@react-router/node";
-
 export const action = async ({ request }) => {
   if (request.method !== "POST") {
-    return json({ success: false, message: "Method not allowed" }, { status: 405 });
+    return Response.json({ success: false, message: "Method not allowed" }, { status: 405 });
   }
 
   try {
@@ -14,7 +12,7 @@ export const action = async ({ request }) => {
       console.log(`[Check Email] Authenticated for shop: ${auth.session?.shop}`);
     } catch (authError) {
       console.error("❌ Proxy Auth Error:", authError.message);
-      return json({ 
+      return Response.json({ 
         success: false, 
         message: "Invalid proxy signature." 
       }, { status: 400 });
@@ -27,7 +25,7 @@ export const action = async ({ request }) => {
     const { email } = body;
 
     if (!email) {
-      return json({ success: false, message: "Email is required" }, { status: 400 });
+      return Response.json({ success: false, message: "Email is required" }, { status: 400 });
     }
 
     // 3. Query Shopify to check if customer exists
@@ -48,13 +46,13 @@ export const action = async ({ request }) => {
     const emailCheckData = await emailCheckResponse.json();
     const customerFound = emailCheckData.data?.customers?.edges?.length > 0;
 
-    return json({ 
+    return Response.json({ 
       success: true, 
       registered: customerFound 
     });
 
   } catch (error) {
     console.error("Fatal Check Email error:", error);
-    return json({ success: false, message: "Server error occurred." }, { status: 500 });
+    return Response.json({ success: false, message: "Server error occurred." }, { status: 500 });
   }
 };
