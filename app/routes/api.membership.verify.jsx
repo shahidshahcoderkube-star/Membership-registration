@@ -46,20 +46,21 @@ export const action = async ({ request }) => {
       // Cleanup OTP
       await prisma.otpVerification.delete({ where: { email } });
 
-      return Response.json({ 
-        success: true, 
+      return Response.json({
+        success: true,
         message: "Registration complete!",
-        redirect: "/account/login" 
+        // redirect: "/account/login" 
+        redirect: "/pages/login"
       });
 
     } catch (finalizeError) {
       console.error("Finalization error:", finalizeError);
-      
+
       // If Shopify says the email is taken, it's a "connected" account error
       if (finalizeError.message.toLowerCase().includes("taken") || finalizeError.message.toLowerCase().includes("exists")) {
-        return Response.json({ 
-          success: false, 
-          message: `This account is already connected.` 
+        return Response.json({
+          success: false,
+          message: `This account is already connected.`
         }, { status: 400 });
       }
 
