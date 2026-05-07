@@ -20,9 +20,9 @@ export const action = async ({ request }) => {
       console.error("❌ Proxy Auth Error:", authError.message);
       // In App Proxy, if HMAC is invalid, the library throws a 400 Response.
       // We catch it here to return a clean JSON error instead of an HTML crash.
-      return Response.json({ 
-        success: false, 
-        message: "Invalid proxy signature. Please try reloading the page from your shop admin." 
+      return Response.json({
+        success: false,
+        message: "Invalid proxy signature. Please try reloading the page from your shop admin."
       }, { status: 400 });
     }
 
@@ -30,9 +30,9 @@ export const action = async ({ request }) => {
 
     if (!admin) {
       console.warn("⚠️ No admin session found in proxy request.");
-      return Response.json({ 
-        success: false, 
-        message: "Session expired or app not installed. Please re-open the app in Shopify Admin to refresh your session." 
+      return Response.json({
+        success: false,
+        message: "Session expired or app not installed. Please re-open the app in Shopify Admin to refresh your session."
       }, { status: 401 });
     }
 
@@ -72,33 +72,33 @@ export const action = async ({ request }) => {
       const { finalizeRegistration } = await import("../services/registration.server");
       try {
         await finalizeRegistration({
-            admin,
-            email,
-            firstName,
-            lastName,
-            signature,
-            agreement,
-            createdAt: new Date()
+          admin,
+          email,
+          firstName,
+          lastName,
+          signature,
+          agreement,
+          createdAt: new Date()
         });
 
         // Cleanup OAuth record
         await prisma.oAuthVerification.delete({ where: { id: oauthToken } });
 
-        return Response.json({ 
-          success: true, 
+        return Response.json({
+          success: true,
           message: "Registration complete!",
-          redirect: "/pages/login" 
+          redirect: "/account/login"
         });
 
       } catch (finalizeError) {
         console.error("OAuth Registration finalization error:", finalizeError);
-        
+
         // If Shopify says the email is taken, it's a "connected" account error
         if (finalizeError.message.toLowerCase().includes("taken") || finalizeError.message.toLowerCase().includes("exists")) {
           const providerName = oauthRecord.provider.charAt(0).toUpperCase() + oauthRecord.provider.slice(1);
-          return Response.json({ 
-            success: false, 
-            message: `This ${providerName} account is already connected.` 
+          return Response.json({
+            success: false,
+            message: `This ${providerName} account is already connected.`
           }, { status: 400 });
         }
 

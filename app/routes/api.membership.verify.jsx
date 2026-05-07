@@ -49,8 +49,7 @@ export const action = async ({ request }) => {
       return Response.json({
         success: true,
         message: "Registration complete!",
-        // redirect: "/account/login" 
-        redirect: "/pages/login"
+        redirect: "/account/login"
       });
 
     } catch (finalizeError) {
