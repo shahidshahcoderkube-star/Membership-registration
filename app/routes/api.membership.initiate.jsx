@@ -158,6 +158,9 @@ export const action = async ({ request }) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      connectionTimeout: 5000, // 5 seconds strict timeout
+      greetingTimeout: 5000,
+      socketTimeout: 5000,
     });
 
     const htmlTemplate = `
@@ -198,6 +201,12 @@ export const action = async ({ request }) => {
       }
     } catch (emailError) {
       console.error("❌ Nodemailer failed:", emailError.message);
+      
+      // Check if the error was caused by our 5-second timeout
+      if (emailError.code === 'ETIMEDOUT' || emailError.message.includes('timeout')) {
+        return Response.json({ success: false, message: "Email service is busy. Please try again in a minute." }, { status: 504 });
+      }
+      
       return Response.json({ success: false, message: "Failed to send verification email. Please check your internet connection or email address." }, { status: 500 });
     }
 
