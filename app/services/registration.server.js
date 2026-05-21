@@ -11,23 +11,23 @@ async function drawWrappedText(pdfDoc, page, text, font, size, x, startY, maxWid
     const testLine = line + words[i] + " ";
     const textWidth = font.widthOfTextAtSize(testLine, size);
     if (textWidth > maxWidth && i > 0) {
-      currentPage.drawText(line.trim(), { x, y, size, font, color: rgb(0,0,0) });
+      currentPage.drawText(line.trim(), { x, y, size, font, color: rgb(0, 0, 0) });
       line = words[i] + " ";
       y -= lineHeight;
-      if (y < 80) { 
+      if (y < 80) {
         currentPage = pdfDoc.addPage([600, 800]);
-        y = 730; 
+        y = 730;
       }
     } else {
       line = testLine;
     }
   }
   if (line.trim().length > 0) {
-    currentPage.drawText(line.trim(), { x, y, size, font, color: rgb(0,0,0) });
+    currentPage.drawText(line.trim(), { x, y, size, font, color: rgb(0, 0, 0) });
     y -= lineHeight;
     if (y < 80) {
-       currentPage = pdfDoc.addPage([600, 800]);
-       y = 730;
+      currentPage = pdfDoc.addPage([600, 800]);
+      y = 730;
     }
   }
   return { page: currentPage, y };
@@ -39,16 +39,16 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
   try {
     const pdfDoc = await PDFDocument.create();
     let currentPage = pdfDoc.addPage([600, 800]);
-    
+
     const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    
+
     let currentY = 720;
 
     // Title
     currentPage.drawText('Membership Agreement', { x: 50, y: currentY, size: 20, font: boldFont, color: rgb(0, 0, 0) });
     currentY -= 40;
-    
+
     // Email line
     currentPage.drawText('Email: ', { x: 50, y: currentY, size: 12, font: boldFont, color: rgb(0, 0, 0) });
     const emailObjWidth = boldFont.widthOfTextAtSize('Email: ', 12);
@@ -80,25 +80,26 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
 
     currentY -= 20;
     if (currentY < 180) {
-       currentPage = pdfDoc.addPage([600, 800]);
-       currentY = 730;
+      currentPage = pdfDoc.addPage([600, 800]);
+      currentY = 730;
     }
-    
-    currentPage.drawText('Signature:', { x: 50, y: currentY, size: 14, font: boldFont, color: rgb(0,0,0) });
+
+    currentPage.drawText('Signature:', { x: 50, y: currentY, size: 14, font: boldFont, color: rgb(0, 0, 0) });
 
     if (signature) {
-      const base64Data = signature.replace(/^data:image\/(png|jpeg);base64,/, "");
+      const isPng = signature.startsWith("data:image/png");
+      const base64Data = signature.replace(/^data:image\/(png|jpeg|webp);base64,/, "");
       const imageBytes = Buffer.from(base64Data, 'base64');
-      const embeddedImage = await pdfDoc.embedPng(imageBytes);
+      const embeddedImage = isPng ? await pdfDoc.embedPng(imageBytes) : await pdfDoc.embedJpg(imageBytes);
       const imgDims = embeddedImage.scale(0.5);
-      
+
       currentPage.drawRectangle({
-         x: 50,
-         y: currentY - imgDims.height - 10,
-         width: imgDims.width,
-         height: imgDims.height,
-         borderColor: rgb(0.8, 0.8, 0.8),
-         borderWidth: 1,
+        x: 50,
+        y: currentY - imgDims.height - 10,
+        width: imgDims.width,
+        height: imgDims.height,
+        borderColor: rgb(0.8, 0.8, 0.8),
+        borderWidth: 1,
       });
 
       currentPage.drawImage(embeddedImage, {
@@ -114,13 +115,13 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
 
     const d = new Date(createdAt || Date.now());
     const pad = (n) => n.toString().padStart(2, '0');
-    const dateStr = `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
-    
+    const dateStr = `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+
     if (currentY < 50) {
-        currentPage = pdfDoc.addPage([600, 800]);
-        currentY = 750;
+      currentPage = pdfDoc.addPage([600, 800]);
+      currentY = 750;
     }
-    currentPage.drawText(`Signed on: ${dateStr}`, { x: 50, y: currentY, size: 12, font: regularFont, color: rgb(0,0,0) });
+    currentPage.drawText(`Signed on: ${dateStr}`, { x: 50, y: currentY, size: 12, font: regularFont, color: rgb(0, 0, 0) });
 
     pdfBytes = await pdfDoc.save();
   } catch (pdfErr) {
@@ -141,7 +142,7 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
           }
         }
       }`;
-      
+
     const stagedUploadResponse = await admin.graphql(stagedUploadsMutation, {
       variables: {
         input: [{
@@ -154,13 +155,13 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
     });
     const stagedData = await stagedUploadResponse.json();
     const target = stagedData.data.stagedUploadsCreate.stagedTargets[0];
-    
+
     const formData = new FormData();
     target.parameters.forEach(param => { formData.append(param.name, param.value); });
-    
+
     const fileBlob = new Blob([pdfBytes], { type: 'application/pdf' });
     formData.append('file', fileBlob, `${firstName}_Agreement.pdf`);
-    
+
     const uploadRes = await fetch(target.url, { method: 'POST', body: formData });
     if (!uploadRes.ok) throw new Error(`Upload failed: ${uploadRes.status}`);
 
@@ -173,7 +174,7 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
           }
         }
       }`;
-    
+
     const fileCreateRes = await admin.graphql(fileCreateMutation, {
       variables: {
         files: [{
@@ -185,7 +186,7 @@ export async function finalizeRegistration({ admin, email, firstName, lastName, 
     });
     const fcData = await fileCreateRes.json();
     const createdFile = fcData.data?.fileCreate?.files?.[0];
-    
+
     if (createdFile && createdFile.id) {
       genericFileId = createdFile.id;
     }
